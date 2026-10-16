@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "حاسبة سكرو",
+    "subtitle": "سجّل نقاط كل دور وتوّج صاحب أقل مجموع نقاط بالفائز.",
+    "footer": "يتم حفظ النتائج تلقائيًا على هذا الجهاز."
+  },
+  "language": {
+    "label": "اللغة",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "theme": {
+    "label": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "النظام"
+  },
+  "common": {
+    "player": "اللاعب",
+    "players": "اللاعبون",
+    "points": "النقاط",
+    "total": "المجموع",
+    "king": "الملك",
+    "cancel": "إلغاء",
+    "listSeparator": "، "
+  },
+  "setup": {
+    "title": "لعبة جديدة",
+    "modeTitle": "نمط اللعب",
+    "playersTitle": "اللاعبون",
+    "playerCount": "أُضيف {{count}}",
+    "playersHint": "أضف ما بين {{min}} و{{max}} لاعبين ثم ابدأ اللعبة.",
+    "playerNamePlaceholder": "أدخل اسم اللاعب",
+    "addPlayer": "إضافة لاعب",
+    "removePlayer": "إزالة {{name}}",
+    "start": "ابدأ اللعبة",
+    "errors": {
+      "nameRequired": "الرجاء إدخال اسم اللاعب.",
+      "nameTooLong": "يجب ألا يتجاوز اسم اللاعب {{max}} حرفًا.",
+      "nameDuplicate": "هذا الاسم مضاف بالفعل."
+    }
+  },
+  "modes": {
+    "regular": {
+      "name": "عادي",
+      "description": "5 أدوار. يفوز اللاعب صاحب أقل مجموع نقاط."
+    }
+  },
+  "game": {
+    "turn": "الدور {{current}} من {{total}}",
+    "turnShort": "الدور {{number}}",
+    "submitTurn": "تأكيد الدور",
+    "saveTurn": "حفظ الدور",
+    "editingTurn": "تعديل الدور {{number}}",
+    "editTurn": "تعديل الدور {{number}}",
+    "editPrevious": "تعديل الدور السابق",
+    "restart": "إعادة اللعبة",
+    "kingHint": "يحصل الملك على صفر نقاط في هذا الدور. يمكن تتويج أكثر من ملك.",
+    "history": "الأدوار المؤكدة",
+    "errors": {
+      "pointsRequired": "أدخل نقاط {{name}}.",
+      "pointsInvalid": "يجب أن تكون النقاط عددًا صحيحًا بين 0 و{{max}}.",
+      "turnIncomplete": "صحّح الحقول المظللة قبل التأكيد."
+    }
+  },
+  "restart": {
+    "title": "إعادة بدء اللعبة؟",
+    "message": "سيتم مسح جميع اللاعبين والنقاط والأدوار المؤكدة. لا يمكن التراجع عن هذا الإجراء.",
+    "confirm": "إعادة البدء"
+  },
+  "results": {
+    "title": "النتائج النهائية",
+    "editHint": "اختر دورًا من السجل أدناه لتعديل نقاطه.",
+    "winnerBanner": "{{name}} يفوز بمجموع {{score}} نقطة!",
+    "tieBanner": "تعادل! الفائزون: {{names}}",
+    "winnerBadge": "الفائز",
+    "newGame": "لعبة جديدة"
+  }
+}

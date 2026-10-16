@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "Skrew Calculator",
+    "subtitle": "Track each turn's points and crown the lowest total as the winner.",
+    "footer": "Scores are saved automatically on this device."
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "common": {
+    "player": "Player",
+    "players": "Players",
+    "points": "Points",
+    "total": "Total",
+    "king": "King",
+    "cancel": "Cancel",
+    "listSeparator": ", "
+  },
+  "setup": {
+    "title": "New Game",
+    "modeTitle": "Game Mode",
+    "playersTitle": "Players",
+    "playerCount": "{{count}} added",
+    "playersHint": "Add between {{min}} and {{max}} players, then start the game.",
+    "playerNamePlaceholder": "Enter player name",
+    "addPlayer": "Add Player",
+    "removePlayer": "Remove {{name}}",
+    "start": "Start Game",
+    "errors": {
+      "nameRequired": "Please enter a player name.",
+      "nameTooLong": "Player names can be up to {{max}} characters.",
+      "nameDuplicate": "This name is already added."
+    }
+  },
+  "modes": {
+    "regular": {
+      "name": "Regular",
+      "description": "5 turns. The player with the lowest total score wins."
+    }
+  },
+  "game": {
+    "turn": "Turn {{current}} of {{total}}",
+    "turnShort": "Turn {{number}}",
+    "submitTurn": "Submit Turn",
+    "saveTurn": "Save Turn",
+    "editingTurn": "Editing Turn {{number}}",
+    "editTurn": "Edit turn {{number}}",
+    "editPrevious": "Edit Previous Turn",
+    "restart": "Restart Game",
+    "kingHint": "The King scores 0 points this turn. Multiple Kings are allowed.",
+    "history": "Submitted Turns",
+    "errors": {
+      "pointsRequired": "Enter the points for {{name}}.",
+      "pointsInvalid": "Points must be a whole number between 0 and {{max}}.",
+      "turnIncomplete": "Fix the highlighted entries before submitting."
+    }
+  },
+  "restart": {
+    "title": "Restart the game?",
+    "message": "All players, scores, and submitted turns will be cleared. This action cannot be undone.",
+    "confirm": "Restart"
+  },
+  "results": {
+    "title": "Final Results",
+    "editHint": "Select a turn in the history below to update its scores.",
+    "winnerBanner": "{{name}} wins with {{score}} points!",
+    "tieBanner": "It's a tie! Winners: {{names}}",
+    "winnerBadge": "Winner",
+    "newGame": "New Game"
+  }
+}

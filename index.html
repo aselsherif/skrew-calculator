@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skrew Calculator</title>
+    <script>
+      ;(function () {
+        try {
+          var preference = window.localStorage.getItem('skrew:theme') || 'system'
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          var isDark = preference === 'dark' || (preference === 'system' && prefersDark)
+          document.documentElement.classList.toggle('dark', isDark)
+        } catch (error) {
+          // Storage unavailable; keep the default light theme.
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
