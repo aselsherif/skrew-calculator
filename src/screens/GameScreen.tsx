@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PlayerAvatar } from '../components/PlayerAvatar'
+import { TurnActionBar } from '../components/TurnActionBar'
 import { TurnHistory } from '../components/TurnHistory'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
@@ -48,139 +50,66 @@ export function GameScreen({
 }: GameScreenProps) {
   const { t } = useTranslation()
   const [confirmRestartOpen, setConfirmRestartOpen] = useState(false)
-
-  const editingTurn =
-    session.editingTurnIndex !== null ? session.turns[session.editingTurnIndex] : null
-  const turnNumber = session.turns.length + 1
-  const progress = (session.turns.length / mode.turnCount) * 100
-
-  return (
-    <div className="space-y-6">
-      <Card>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            {editingTurn
-              ? t('game.editingTurn', { number: editingTurn.index + 1 })
-              : t('game.turn', { current: turnNumber, total: mode.turnCount })}
-          </h2>
-          <Button variant="danger" size="sm" onClick={() => setConfirmRestartOpen(true)}>
-            {t('game.restart')}
-          </Button>
-        </div>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('game.kingHint')}</p>
-
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-          <div
-            className="h-full rounded-full bg-indigo-600 transition-all dark:bg-indigo-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        <TurnForm
-          key={editingTurn ? `edit-${editingTurn.index}` : `new-${session.turns.length}`}
-          session={session}
-          allowMultipleKings={mode.allowMultipleKings}
-          editingTurn={editingTurn}
-          onSubmitTurn={onSubmitTurn}
-          onStartEditingTurn={onStartEditingTurn}
-          onCancelEditingTurn={onCancelEditingTurn}
-        />
-      </Card>
-
-      <TurnHistory session={session} onEditTurn={onStartEditingTurn} />
-
-      <ConfirmDialog
-        open={confirmRestartOpen}
-        title={t('restart.title')}
-        message={t('restart.message')}
-        confirmLabel={t('restart.confirm')}
-        cancelLabel={t('common.cancel')}
-        onConfirm={() => {
-          setConfirmRestartOpen(false)
-          onRestart()
-        }}
-        onCancel={() => setConfirmRestartOpen(false)}
-      />
-    </div>
-  )
-}
-
-interface TurnFormProps {
-  session: GameSession
-  allowMultipleKings: boolean
-  editingTurn: Turn | null
-  onSubmitTurn: (entries: TurnEntry[]) => void
-  onStartEditingTurn: (index: number) => void
-  onCancelEditingTurn: () => void
-}
-
-function TurnForm({
-  session,
-  allowMultipleKings,
-  editingTurn,
-  onSubmitTurn,
-  onStartEditingTurn,
-  onCancelEditingTurn,
-}: TurnFormProps) {
-  const { t } = useTranslation()
-  const isEditing = editingTurn !== null
-  const [draft, setDraft] = useState<DraftState>(() =>
-    createDraft(session.players, editingTurn?.entries),
-  )
+  const [drafts, setDrafts] = useState<Record<string, DraftState>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showSummary, setShowSummary] = useState(false)
 
-  const otherTurns = useMemo(
-    () =>
-      editingTurn
-        ? session.turns.filter((turn) => turn.index !== editingTurn.index)
-        : session.turns,
-    [session.turns, editingTurn],
-  )
+  const editingTurn =
+    session.editingTurnIndex !== null ? session.turns[session.editingTurnIndex] : null
+  const activeKey = editingTurn ? `edit-${editingTurn.index}` : 'new'
+  const draft = drafts[activeKey] ?? createDraft(session.players, editingTurn?.entries)
 
-  const projectedTotals = useMemo(() => {
-    const totals = new Map<string, number>()
-    for (const player of session.players) {
-      const entry = draft[player.id]
-      const draftPoints = entry ? (entry.isKing ? 0 : (parsePoints(entry.points) ?? 0)) : 0
-      totals.set(player.id, totalForPlayer(otherTurns, player.id) + draftPoints)
-    }
-    return totals
-  }, [session.players, otherTurns, draft])
+  const turnNumber = session.turns.length + 1
+  const progress = (session.turns.length / mode.turnCount) * 100
+  const activePosition = editingTurn ? editingTurn.index : session.turns.length
+  const canGoPrevious = activePosition > 0
+  const canGoNext = editingTurn !== null
 
-  function clearError(playerId: string) {
-    if (errors[playerId]) {
-      setErrors((previous) => {
-        const next = { ...previous }
-        delete next[playerId]
-        return next
-      })
-    }
+  function setActiveDraft(next: DraftState) {
+    setDrafts((previous) => ({ ...previous, [activeKey]: next }))
     setShowSummary(false)
   }
 
-  function updatePoints(playerId: string, value: string) {
-    setDraft((previous) => ({
-      ...previous,
-      [playerId]: { ...previous[playerId], points: value },
-    }))
+  function clearError(playerId: string) {
+    setErrors((previous) => {
+      if (!previous[playerId]) {
+        return previous
+      }
+      const next = { ...previous }
+      delete next[playerId]
+      return next
+    })
+  }
+
+  function handlePointsChange(playerId: string, value: string) {
+    setActiveDraft({ ...draft, [playerId]: { ...draft[playerId], points: value } })
     clearError(playerId)
   }
 
-  function toggleKing(playerId: string) {
-    setDraft((previous) => {
-      const entry = previous[playerId]
-      if (allowMultipleKings) {
-        return { ...previous, [playerId]: { ...entry, isKing: !entry.isKing } }
-      }
+  function handleToggleKing(playerId: string) {
+    const entry = draft[playerId]
+    let next: DraftState
+    if (mode.allowMultipleKings) {
+      next = { ...draft, [playerId]: { ...entry, isKing: !entry.isKing } }
+    } else {
       const turningOn = !entry.isKing
-      const next: DraftState = {}
-      for (const [id, candidate] of Object.entries(previous)) {
+      next = {}
+      for (const [id, candidate] of Object.entries(draft)) {
         next[id] = { ...candidate, isKing: turningOn && id === playerId }
       }
-      return next
-    })
+    }
+    setActiveDraft(next)
     clearError(playerId)
+  }
+
+  function navigateTo(position: number) {
+    setErrors({})
+    setShowSummary(false)
+    if (position === session.turns.length) {
+      onCancelEditingTurn()
+    } else {
+      onStartEditingTurn(position)
+    }
   }
 
   function handleSubmit() {
@@ -203,17 +132,134 @@ function TurnForm({
       return
     }
 
-    onSubmitTurn(
-      session.players.map((player) => {
-        const entry = draft[player.id]
-        return {
-          playerId: player.id,
-          points: entry?.isKing ? 0 : (parsePoints(entry?.points ?? '') ?? 0),
-          isKing: entry?.isKing ?? false,
-        }
-      }),
-    )
+    const entries: TurnEntry[] = session.players.map((player) => {
+      const entry = draft[player.id]
+      return {
+        playerId: player.id,
+        points: entry?.isKing ? 0 : (parsePoints(entry?.points ?? '') ?? 0),
+        isKing: entry?.isKing ?? false,
+      }
+    })
+
+    setDrafts((previous) => {
+      const next = { ...previous }
+      delete next[activeKey]
+      return next
+    })
+    setErrors({})
+    setShowSummary(false)
+    onSubmitTurn(entries)
   }
+
+  return (
+    <div className="space-y-6 pb-28">
+      <Card>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {editingTurn
+              ? t('game.editingTurn', { number: editingTurn.index + 1 })
+              : t('game.turn', { current: turnNumber, total: mode.turnCount })}
+          </h2>
+          <Button variant="danger" size="sm" onClick={() => setConfirmRestartOpen(true)}>
+            {t('game.restart')}
+          </Button>
+        </div>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('game.kingHint')}</p>
+
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+          <div
+            className="h-full rounded-full bg-indigo-600 transition-all dark:bg-indigo-500"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        <ScoreEntryForm
+          session={session}
+          editingTurn={editingTurn}
+          draft={draft}
+          errors={errors}
+          showSummary={showSummary}
+          onPointsChange={handlePointsChange}
+          onToggleKing={handleToggleKing}
+        />
+      </Card>
+
+      <TurnHistory session={session} onEditTurn={onStartEditingTurn} />
+
+      <TurnActionBar
+        positionLabel={
+          editingTurn
+            ? t('game.editingTurn', { number: editingTurn.index + 1 })
+            : t('game.turn', { current: turnNumber, total: mode.turnCount })
+        }
+        submitLabel={editingTurn ? t('game.saveTurn') : t('game.submitTurn')}
+        isEditing={editingTurn !== null}
+        canGoPrevious={canGoPrevious}
+        canGoNext={canGoNext}
+        onPrevious={() => navigateTo(activePosition - 1)}
+        onNext={() => navigateTo(activePosition + 1)}
+        onCancelEdit={() => {
+          setErrors({})
+          setShowSummary(false)
+          onCancelEditingTurn()
+        }}
+        onSubmit={handleSubmit}
+      />
+
+      <ConfirmDialog
+        open={confirmRestartOpen}
+        title={t('restart.title')}
+        message={t('restart.message')}
+        confirmLabel={t('restart.confirm')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={() => {
+          setConfirmRestartOpen(false)
+          onRestart()
+        }}
+        onCancel={() => setConfirmRestartOpen(false)}
+      />
+    </div>
+  )
+}
+
+interface ScoreEntryFormProps {
+  session: GameSession
+  editingTurn: Turn | null
+  draft: DraftState
+  errors: Record<string, string>
+  showSummary: boolean
+  onPointsChange: (playerId: string, value: string) => void
+  onToggleKing: (playerId: string) => void
+}
+
+function ScoreEntryForm({
+  session,
+  editingTurn,
+  draft,
+  errors,
+  showSummary,
+  onPointsChange,
+  onToggleKing,
+}: ScoreEntryFormProps) {
+  const { t } = useTranslation()
+
+  const otherTurns = useMemo(
+    () =>
+      editingTurn
+        ? session.turns.filter((turn) => turn.index !== editingTurn.index)
+        : session.turns,
+    [session.turns, editingTurn],
+  )
+
+  const projectedTotals = useMemo(() => {
+    const totals = new Map<string, number>()
+    for (const player of session.players) {
+      const entry = draft[player.id]
+      const draftPoints = entry ? (entry.isKing ? 0 : (parsePoints(entry.points) ?? 0)) : 0
+      totals.set(player.id, totalForPlayer(otherTurns, player.id) + draftPoints)
+    }
+    return totals
+  }, [session.players, otherTurns, draft])
 
   return (
     <div className="mt-4">
@@ -232,6 +278,11 @@ function TurnForm({
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
+                  <PlayerAvatar
+                    avatarId={player.avatarId}
+                    name={player.name}
+                    className="h-8 w-8 text-sm"
+                  />
                   <span className="truncate font-semibold text-slate-800 dark:text-slate-100">
                     {player.name}
                   </span>
@@ -246,7 +297,7 @@ function TurnForm({
                   type="button"
                   aria-pressed={entry.isKing}
                   aria-label={`${t('common.king')}: ${player.name}`}
-                  onClick={() => toggleKing(player.id)}
+                  onClick={() => onToggleKing(player.id)}
                   className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                     entry.isKing
                       ? 'border-amber-400 bg-amber-400 text-amber-950'
@@ -270,7 +321,7 @@ function TurnForm({
                     max={MAX_TURN_POINTS}
                     value={entry.points}
                     disabled={entry.isKing}
-                    onChange={(event) => updatePoints(player.id, event.target.value)}
+                    onChange={(event) => onPointsChange(player.id, event.target.value)}
                     aria-invalid={errorKey !== undefined}
                     aria-label={`${t('common.points')}: ${player.name}`}
                     className={`w-24 rounded-xl border bg-white px-3 py-2 text-slate-900 outline-none transition-colors focus:ring-2 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 ${
@@ -298,37 +349,11 @@ function TurnForm({
         })}
       </ul>
 
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Button size="lg" onClick={handleSubmit} className="w-full sm:w-auto">
-            {isEditing ? t('game.saveTurn') : t('game.submitTurn')}
-          </Button>
-          {isEditing ? (
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={onCancelEditingTurn}
-              className="w-full sm:w-auto"
-            >
-              {t('common.cancel')}
-            </Button>
-          ) : session.turns.length > 0 ? (
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => onStartEditingTurn(session.turns.length - 1)}
-              className="w-full sm:w-auto"
-            >
-              {t('game.editPrevious')}
-            </Button>
-          ) : null}
-        </div>
-        {showSummary && (
-          <p role="alert" className="text-sm text-rose-600 dark:text-rose-400">
-            {t('game.errors.turnIncomplete')}
-          </p>
-        )}
-      </div>
+      {showSummary && (
+        <p role="alert" className="mt-4 text-sm text-rose-600 dark:text-rose-400">
+          {t('game.errors.turnIncomplete')}
+        </p>
+      )}
     </div>
   )
 }

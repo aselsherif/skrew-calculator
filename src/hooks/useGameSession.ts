@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getGameMode } from '../game/modes'
 import { gameStorage, type GameStorage } from '../storage/gameStorage'
-import type { GameModeId, GameSession, Turn, TurnEntry } from '../types/game'
+import type { GameModeId, GameSession, NewPlayerInput, Turn, TurnEntry } from '../types/game'
 
 function createPlayerId(): string {
   return crypto.randomUUID()
@@ -32,11 +32,15 @@ export function useGameSession(storage: GameStorage = gameStorage) {
     }
   }, [session, storage])
 
-  const startGame = useCallback((modeId: GameModeId, playerNames: readonly string[]) => {
+  const startGame = useCallback((modeId: GameModeId, players: readonly NewPlayerInput[]) => {
     setSession({
       modeId,
       phase: 'playing',
-      players: playerNames.map((name) => ({ id: createPlayerId(), name: name.trim() })),
+      players: players.map((player) => ({
+        id: createPlayerId(),
+        name: player.name.trim(),
+        avatarId: player.avatarId,
+      })),
       turns: [],
       editingTurnIndex: null,
     })

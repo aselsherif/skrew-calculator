@@ -46,6 +46,32 @@
       "description": "5 turns. The player with the lowest total score wins."
     }
   },
+  "avatars": {
+    "title": "Choose an avatar for {{name}}",
+    "hint": "Tap an avatar to select it.",
+    "setupHint": "Tap a player card to change the avatar.",
+    "change": "Change avatar for {{name}}",
+    "names": {
+      "cat": "Cat",
+      "dog": "Dog",
+      "bear": "Bear",
+      "rabbit": "Rabbit",
+      "fox": "Fox",
+      "penguin": "Penguin",
+      "star": "Star",
+      "heart": "Heart",
+      "bolt": "Bolt",
+      "moon": "Moon",
+      "drop": "Drop",
+      "leaf": "Leaf",
+      "gem": "Gem",
+      "shield": "Shield",
+      "cloud": "Cloud",
+      "smile": "Smile",
+      "flame": "Flame",
+      "sparkles": "Sparkles"
+    }
+  },
   "game": {
     "turn": "Turn {{current}} of {{total}}",
     "turnShort": "Turn {{number}}",
@@ -53,7 +79,8 @@
     "saveTurn": "Save Turn",
     "editingTurn": "Editing Turn {{number}}",
     "editTurn": "Edit turn {{number}}",
-    "editPrevious": "Edit Previous Turn",
+    "previousTurn": "Previous turn",
+    "nextTurn": "Next turn",
     "restart": "Restart Game",
     "kingHint": "The King scores 0 points this turn. Multiple Kings are allowed.",
     "history": "Submitted Turns",

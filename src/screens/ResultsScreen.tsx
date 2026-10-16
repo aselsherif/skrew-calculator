@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PlayerAvatar } from '../components/PlayerAvatar'
 import { TurnHistory } from '../components/TurnHistory'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
@@ -65,6 +66,11 @@ export function ResultsScreen({ session, onNewGame, onStartEditingTurn }: Result
                 >
                   {standing.rank}
                 </span>
+                <PlayerAvatar
+                  avatarId={standing.player.avatarId}
+                  name={standing.player.name}
+                  className="h-8 w-8 text-sm"
+                />
                 <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="truncate font-semibold text-slate-900 dark:text-slate-100">
                     {standing.player.name}

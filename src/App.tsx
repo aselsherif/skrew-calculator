@@ -59,7 +59,11 @@ function App() {
           ) : null}
         </main>
 
-        <footer className="text-center text-xs text-slate-400 dark:text-slate-500">
+        <footer
+          className={`text-center text-xs text-slate-400 dark:text-slate-500 ${
+            showGameScreen ? 'pb-20' : ''
+          }`}
+        >
           {t('app.footer')}
         </footer>
       </div>

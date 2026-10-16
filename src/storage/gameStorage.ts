@@ -1,3 +1,4 @@
+import { isAvatarId } from '../game/avatars'
 import { GAME_MODES } from '../game/modes'
 import type { GamePhase, GameSession, Player, Turn, TurnEntry } from '../types/game'
 
@@ -13,7 +14,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function isPlayer(value: unknown): value is Player {
+type StoredPlayer = Omit<Player, 'avatarId'> & { avatarId?: unknown }
+
+function isPlayer(value: unknown): value is StoredPlayer {
   return (
     isRecord(value) && typeof value.id === 'string' && typeof value.name === 'string'
   )
@@ -41,8 +44,9 @@ function isGamePhase(value: unknown): value is GamePhase {
   return value === 'setup' || value === 'playing' || value === 'finished'
 }
 
-type StoredGameSession = Omit<GameSession, 'editingTurnIndex'> & {
+type StoredGameSession = Omit<GameSession, 'editingTurnIndex' | 'players'> & {
   editingTurnIndex?: unknown
+  players: StoredPlayer[]
 }
 
 function isGameSession(value: unknown): value is StoredGameSession {
@@ -71,13 +75,17 @@ export class LocalStorageGameStorage implements GameStorage {
       if (!isGameSession(parsed)) {
         return null
       }
+      const players = parsed.players.map((player) => ({
+        ...player,
+        avatarId: isAvatarId(player.avatarId) ? player.avatarId : null,
+      }))
       const editingTurnIndex =
         typeof parsed.editingTurnIndex === 'number' &&
         parsed.editingTurnIndex >= 0 &&
         parsed.editingTurnIndex < parsed.turns.length
           ? parsed.editingTurnIndex
           : null
-      return { ...parsed, editingTurnIndex }
+      return { ...parsed, players, editingTurnIndex }
     } catch {
       // Corrupted or unavailable storage: start a fresh session instead of crashing.
       return null

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { effectivePoints, totalForPlayer } from '../game/rules'
 import type { GameSession } from '../types/game'
+import { PlayerAvatar } from './PlayerAvatar'
 import { Card } from './ui/Card'
 import { CrownIcon } from './ui/CrownIcon'
 
@@ -19,7 +20,7 @@ export function TurnHistory({ session, onEditTurn }: TurnHistoryProps) {
   return (
     <Card title={t('game.history')}>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[26rem] border-collapse text-sm">
+        <table className="w-full min-w-[28rem] border-collapse text-sm">
           <thead>
             <tr className="text-slate-500 dark:text-slate-400">
               <th className="py-2 pe-3 text-start font-medium">{t('common.player')}</th>
@@ -55,7 +56,14 @@ export function TurnHistory({ session, onEditTurn }: TurnHistoryProps) {
             {session.players.map((player) => (
               <tr key={player.id} className="border-t border-slate-100 dark:border-slate-800">
                 <td className="py-2 pe-3 text-start font-medium text-slate-700 dark:text-slate-200">
-                  {player.name}
+                  <span className="flex items-center gap-2">
+                    <PlayerAvatar
+                      avatarId={player.avatarId}
+                      name={player.name}
+                      className="h-6 w-6 text-xs"
+                    />
+                    <span className="truncate">{player.name}</span>
+                  </span>
                 </td>
                 {session.turns.map((turn) => {
                   const entry = turn.entries.find(

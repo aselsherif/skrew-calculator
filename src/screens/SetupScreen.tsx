@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AvatarPickerDialog } from '../components/AvatarPickerDialog'
+import { PlayerAvatar } from '../components/PlayerAvatar'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
+import { pickNextAvatarId } from '../game/avatars'
 import { DEFAULT_MODE_ID, GAME_MODES } from '../game/modes'
-import type { GameModeId, Player } from '../types/game'
+import type { AvatarId, GameModeId, NewPlayerInput } from '../types/game'
 
 export const MIN_PLAYERS = 2
 export const MAX_PLAYERS = 10
@@ -12,13 +15,19 @@ export const MAX_NAME_LENGTH = 20
 
 type NameError = 'nameRequired' | 'nameTooLong' | 'nameDuplicate'
 
+interface SetupPlayer {
+  id: string
+  name: string
+  avatarId: AvatarId
+}
+
 interface SetupScreenProps {
-  onStart: (modeId: GameModeId, playerNames: string[]) => void
+  onStart: (modeId: GameModeId, players: NewPlayerInput[]) => void
 }
 
 function validateName(
   rawName: string,
-  players: readonly Player[],
+  players: readonly SetupPlayer[],
 ): { error: NameError } | { error: null; name: string } {
   const name = rawName.trim()
   if (name.length === 0) {
@@ -39,11 +48,13 @@ function validateName(
 export function SetupScreen({ onStart }: SetupScreenProps) {
   const { t } = useTranslation()
   const [modeId, setModeId] = useState<GameModeId>(DEFAULT_MODE_ID)
-  const [players, setPlayers] = useState<Player[]>([])
+  const [players, setPlayers] = useState<SetupPlayer[]>([])
   const [nameInput, setNameInput] = useState('')
   const [nameError, setNameError] = useState<NameError | null>(null)
+  const [pickerPlayerId, setPickerPlayerId] = useState<string | null>(null)
 
   const canStart = players.length >= MIN_PLAYERS
+  const pickerPlayer = players.find((player) => player.id === pickerPlayerId) ?? null
 
   function handleAddPlayer() {
     const result = validateName(nameInput, players)
@@ -51,7 +62,14 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
       setNameError(result.error)
       return
     }
-    setPlayers((previous) => [...previous, { id: crypto.randomUUID(), name: result.name }])
+    setPlayers((previous) => [
+      ...previous,
+      {
+        id: crypto.randomUUID(),
+        name: result.name,
+        avatarId: pickNextAvatarId(previous.map((player) => player.avatarId)),
+      },
+    ])
     setNameInput('')
     setNameError(null)
   }
@@ -59,13 +77,30 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
   function handleRemovePlayer(playerId: string) {
     setPlayers((previous) => previous.filter((player) => player.id !== playerId))
     setNameError(null)
+    if (pickerPlayerId === playerId) {
+      setPickerPlayerId(null)
+    }
+  }
+
+  function handleSelectAvatar(avatarId: AvatarId) {
+    if (pickerPlayerId !== null) {
+      setPlayers((previous) =>
+        previous.map((player) =>
+          player.id === pickerPlayerId ? { ...player, avatarId } : player,
+        ),
+      )
+    }
+    setPickerPlayerId(null)
   }
 
   function handleStart() {
     if (!canStart) {
       return
     }
-    onStart(modeId, players.map((player) => player.name))
+    onStart(
+      modeId,
+      players.map((player) => ({ name: player.name, avatarId: player.avatarId })),
+    )
   }
 
   return (
@@ -159,28 +194,46 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
         </div>
 
         {players.length > 0 && (
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {players.map((player) => (
-              <li
-                key={player.id}
-                className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 py-1 ps-3 pe-1 dark:border-slate-700 dark:bg-slate-800"
-              >
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {player.name}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleRemovePlayer(player.id)}
-                  aria-label={t('setup.removePlayer', { name: player.name })}
-                  className="flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-500/20 dark:hover:text-rose-300"
+          <>
+            <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+              {t('avatars.setupHint')}
+            </p>
+            <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {players.map((player) => (
+                <li
+                  key={player.id}
+                  className="relative rounded-xl border border-slate-200 bg-white shadow-sm transition-colors hover:border-indigo-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-500/60"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M6 6l12 12M18 6 6 18" />
-                  </svg>
-                </button>
-              </li>
-            ))}
-          </ul>
+                  <button
+                    type="button"
+                    onClick={() => setPickerPlayerId(player.id)}
+                    aria-label={t('avatars.change', { name: player.name })}
+                    title={t('avatars.change', { name: player.name })}
+                    className="flex w-full flex-col items-center gap-2 rounded-xl p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  >
+                    <PlayerAvatar
+                      avatarId={player.avatarId}
+                      name={player.name}
+                      className="h-14 w-14 text-xl"
+                    />
+                    <span className="w-full truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                      {player.name}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePlayer(player.id)}
+                    aria-label={t('setup.removePlayer', { name: player.name })}
+                    className="absolute top-1.5 end-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-colors hover:bg-rose-100 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-500/20 dark:hover:text-rose-300"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <path d="M6 6l12 12M18 6 6 18" />
+                    </svg>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </Card>
 
@@ -194,6 +247,14 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
           </p>
         )}
       </div>
+
+      <AvatarPickerDialog
+        open={pickerPlayer !== null}
+        playerName={pickerPlayer?.name ?? ''}
+        selectedAvatarId={pickerPlayer?.avatarId ?? null}
+        onSelect={handleSelectAvatar}
+        onClose={() => setPickerPlayerId(null)}
+      />
     </div>
   )
 }
