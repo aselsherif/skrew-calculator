@@ -5,9 +5,9 @@ import { PlayerAvatar } from '../components/PlayerAvatar'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
-import { pickNextAvatarId } from '../game/avatars'
+import { createAvatarSeed } from '../game/bigHeads'
 import { DEFAULT_MODE_ID, GAME_MODES } from '../game/modes'
-import type { AvatarId, GameModeId, NewPlayerInput } from '../types/game'
+import type { GameModeId, NewPlayerInput } from '../types/game'
 
 export const MIN_PLAYERS = 2
 export const MAX_PLAYERS = 10
@@ -18,7 +18,7 @@ type NameError = 'nameRequired' | 'nameTooLong' | 'nameDuplicate'
 interface SetupPlayer {
   id: string
   name: string
-  avatarId: AvatarId
+  avatarSeed: string
 }
 
 interface SetupScreenProps {
@@ -67,7 +67,7 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
       {
         id: crypto.randomUUID(),
         name: result.name,
-        avatarId: pickNextAvatarId(previous.map((player) => player.avatarId)),
+        avatarSeed: createAvatarSeed(),
       },
     ])
     setNameInput('')
@@ -82,11 +82,11 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
     }
   }
 
-  function handleSelectAvatar(avatarId: AvatarId) {
+  function handleSelectSeed(seed: string) {
     if (pickerPlayerId !== null) {
       setPlayers((previous) =>
         previous.map((player) =>
-          player.id === pickerPlayerId ? { ...player, avatarId } : player,
+          player.id === pickerPlayerId ? { ...player, avatarSeed: seed } : player,
         ),
       )
     }
@@ -99,7 +99,7 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
     }
     onStart(
       modeId,
-      players.map((player) => ({ name: player.name, avatarId: player.avatarId })),
+      players.map((player) => ({ name: player.name, avatarSeed: player.avatarSeed })),
     )
   }
 
@@ -212,7 +212,7 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
                     className="flex w-full flex-col items-center gap-2 rounded-xl p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   >
                     <PlayerAvatar
-                      avatarId={player.avatarId}
+                      seed={player.avatarSeed}
                       name={player.name}
                       className="h-14 w-14 text-xl"
                     />
@@ -251,8 +251,8 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
       <AvatarPickerDialog
         open={pickerPlayer !== null}
         playerName={pickerPlayer?.name ?? ''}
-        selectedAvatarId={pickerPlayer?.avatarId ?? null}
-        onSelect={handleSelectAvatar}
+        selectedSeed={pickerPlayer?.avatarSeed ?? null}
+        onSelect={handleSelectSeed}
         onClose={() => setPickerPlayerId(null)}
       />
     </div>

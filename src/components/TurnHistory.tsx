@@ -58,7 +58,7 @@ export function TurnHistory({ session, onEditTurn }: TurnHistoryProps) {
                 <td className="py-2 pe-3 text-start font-medium text-slate-700 dark:text-slate-200">
                   <span className="flex items-center gap-2">
                     <PlayerAvatar
-                      avatarId={player.avatarId}
+                      seed={player.avatarSeed}
                       name={player.name}
                       className="h-6 w-6 text-xs"
                     />

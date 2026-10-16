@@ -67,7 +67,7 @@ export function ResultsScreen({ session, onNewGame, onStartEditingTurn }: Result
                   {standing.rank}
                 </span>
                 <PlayerAvatar
-                  avatarId={standing.player.avatarId}
+                  seed={standing.player.avatarSeed}
                   name={standing.player.name}
                   className="h-8 w-8 text-sm"
                 />

@@ -39,7 +39,7 @@ export function useGameSession(storage: GameStorage = gameStorage) {
       players: players.map((player) => ({
         id: createPlayerId(),
         name: player.name.trim(),
-        avatarId: player.avatarId,
+        avatarSeed: player.avatarSeed,
       })),
       turns: [],
       editingTurnIndex: null,

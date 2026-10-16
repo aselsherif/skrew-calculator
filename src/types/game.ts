@@ -1,34 +1,14 @@
 export type GameModeId = 'regular'
 
-export type AvatarId =
-  | 'cat'
-  | 'dog'
-  | 'bear'
-  | 'rabbit'
-  | 'fox'
-  | 'penguin'
-  | 'star'
-  | 'heart'
-  | 'bolt'
-  | 'moon'
-  | 'drop'
-  | 'leaf'
-  | 'gem'
-  | 'shield'
-  | 'cloud'
-  | 'smile'
-  | 'flame'
-  | 'sparkles'
-
 export interface Player {
   id: string
   name: string
-  avatarId: AvatarId | null
+  avatarSeed: string | null
 }
 
 export interface NewPlayerInput {
   name: string
-  avatarId: AvatarId
+  avatarSeed: string
 }
 
 export interface TurnEntry {

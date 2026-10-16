@@ -48,29 +48,11 @@
   },
   "avatars": {
     "title": "Choose an avatar for {{name}}",
-    "hint": "Tap an avatar to select it.",
+    "hint": "Tap a character to select it.",
     "setupHint": "Tap a player card to change the avatar.",
     "change": "Change avatar for {{name}}",
-    "names": {
-      "cat": "Cat",
-      "dog": "Dog",
-      "bear": "Bear",
-      "rabbit": "Rabbit",
-      "fox": "Fox",
-      "penguin": "Penguin",
-      "star": "Star",
-      "heart": "Heart",
-      "bolt": "Bolt",
-      "moon": "Moon",
-      "drop": "Drop",
-      "leaf": "Leaf",
-      "gem": "Gem",
-      "shield": "Shield",
-      "cloud": "Cloud",
-      "smile": "Smile",
-      "flame": "Flame",
-      "sparkles": "Sparkles"
-    }
+    "shuffle": "Shuffle",
+    "option": "Avatar option"
   },
   "game": {
     "turn": "Turn {{current}} of {{total}}",

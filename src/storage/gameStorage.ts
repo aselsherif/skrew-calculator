@@ -1,4 +1,3 @@
-import { isAvatarId } from '../game/avatars'
 import { GAME_MODES } from '../game/modes'
 import type { GamePhase, GameSession, Player, Turn, TurnEntry } from '../types/game'
 
@@ -14,12 +13,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-type StoredPlayer = Omit<Player, 'avatarId'> & { avatarId?: unknown }
+type StoredPlayer = Omit<Player, 'avatarSeed'> & { avatarSeed?: unknown }
 
 function isPlayer(value: unknown): value is StoredPlayer {
   return (
     isRecord(value) && typeof value.id === 'string' && typeof value.name === 'string'
   )
+}
+
+function normalizePlayer(player: StoredPlayer): Player {
+  const avatarSeed =
+    typeof player.avatarSeed === 'string' && player.avatarSeed.length > 0
+      ? player.avatarSeed
+      : player.id
+  return { id: player.id, name: player.name, avatarSeed }
 }
 
 function isTurnEntry(value: unknown): value is TurnEntry {
@@ -75,10 +82,7 @@ export class LocalStorageGameStorage implements GameStorage {
       if (!isGameSession(parsed)) {
         return null
       }
-      const players = parsed.players.map((player) => ({
-        ...player,
-        avatarId: isAvatarId(player.avatarId) ? player.avatarId : null,
-      }))
+      const players = parsed.players.map(normalizePlayer)
       const editingTurnIndex =
         typeof parsed.editingTurnIndex === 'number' &&
         parsed.editingTurnIndex >= 0 &&

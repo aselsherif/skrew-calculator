@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './components/LanguageSwitcher'
+import { ScrewIcon } from './components/ScrewIcon'
 import { ThemeSwitcher } from './components/ThemeSwitcher'
 import { getGameMode } from './game/modes'
 import { useGameSession } from './hooks/useGameSession'
@@ -27,7 +28,12 @@ function App() {
       <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-10">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold sm:text-3xl">{t('app.title')}</h1>
+            <h1 className="flex items-center gap-2.5 text-2xl font-bold sm:text-3xl">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm sm:h-11 sm:w-11">
+                <ScrewIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+              </span>
+              {t('app.title')}
+            </h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('app.subtitle')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
