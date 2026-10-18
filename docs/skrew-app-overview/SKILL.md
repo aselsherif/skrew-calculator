@@ -48,16 +48,21 @@ src/
     modes.ts                GAME_MODES registry (turn count, king rule, ranking)
     rules.ts                pure scoring: parsePoints, effectivePoints, totals,
                             computeStandings, winnersOf
+    draft.ts                turn draft state + crownLowestScorers (Check King)
     bigHeads.ts             seed → BigHead config, AVATAR_PRESETS
+    players.ts              MIN/MAX players, name length constants
   storage/gameStorage.ts    GameStorage interface + localStorage impl + validation
   hooks/
     useGameSession.ts       session state machine + persistence
+    useTurnDraft.ts         per-turn draft state, validation, Check King, submit
     useTheme.ts             theme preference state
   theme/theme.ts            theme preference helpers (light/dark/system)
   i18n/
     index.ts                i18next init, direction handling, language persistence
     locales/en.json, ar.json
   components/
+    game/                   TurnHeader, ScoreEntryForm, PlayerScoreRow,
+                            RestartGameDialog, RemovePlayerDialog
     PlayerAvatar.tsx        renders BigHead from seed (initials fallback)
     AvatarPickerDialog.tsx  20 preset options (shuffle hidden behind flag)
     TurnActionBar.tsx       sticky prev/next/cancel/submit bar

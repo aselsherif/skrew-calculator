@@ -66,7 +66,11 @@ export function TurnHistory({ session, onEditTurn }: TurnHistoryProps) {
                       name={player.name}
                       className="h-6 w-6 text-xs"
                     />
-                    <span className="truncate">{player.name}</span>
+                    <span className="min-w-0 truncate">{player.name}</span>
+                    <RankBadge
+                      rank={rankByPlayer.get(player.id) ?? 0}
+                      className="shrink-0"
+                    />
                   </span>
                 </td>
                 {session.turns.map((turn) => {

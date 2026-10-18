@@ -36,15 +36,21 @@ so the fixed action bar never covers it.
 - Start button disabled until `MIN_PLAYERS`; hint text shows the requirement.
 
 ### GameScreen (`src/screens/GameScreen.tsx`)
-- One component owning: `drafts` (per-turn draft state), `errors`,
-  `showSummary`, restart confirm state. Renders header ("Turn X of Y" or
-  "Editing Turn N"), progress bar, `ScoreEntryForm`, `TurnHistory`,
-  `TurnActionBar`, restart `ConfirmDialog`.
-- `ScoreEntryForm` is presentational: player rows with avatar + name, amber
-  King badge, king toggle pill, numeric points input, live projected total
-  (excludes the edited turn while editing), inline error text, and a per-row
-  remove (✕) button. Removing a player mid-game opens a `ConfirmDialog`
-  (`removePlayer.*` keys) and is disabled while `players.length <= MIN_PLAYERS`.
+- Thin shell (~120 lines): resolves the active turn (new vs edit), delegates
+  all form state to `useTurnDraft`, owns layout and the restart/remove dialogs.
+- `useTurnDraft` (`src/hooks/useTurnDraft.ts`) — drafts/errors/showSummary
+  state, `changePoints`, `toggleKing`, `checkKing` (validates first, then
+  `crownLowestScorers`), `submit` (validates, builds entries, clears the
+  draft, calls `onSubmitTurn`), `clearFeedback`.
+- Game-specific components in `src/components/game/`:
+  - `TurnHeader` — title ("Turn X of Y" / "Editing Turn N"), restart button,
+    king hint, progress bar, Check King button.
+  - `ScoreEntryForm` — computes projected totals (excluding the edited turn)
+    and renders one `PlayerScoreRow` per player + the validation summary.
+  - `PlayerScoreRow` — avatar, name, amber King badge, king toggle pill,
+    remove (✕) button, points input, projected total, inline error.
+  - `RestartGameDialog` / `RemovePlayerDialog` — thin translation wrappers
+    around `ConfirmDialog`.
 - `pb-28` on the root so the fixed bar clears the last card.
 
 ### ResultsScreen (`src/screens/ResultsScreen.tsx`)
@@ -53,9 +59,10 @@ so the fixed action bar never covers it.
 - Ranked list: rank circle, avatar, name, rank badge, total. Winner rows are
   amber-highlighted.
 - Top-3 rows show `RankBadge` medals (rank 1 King / amber, rank 2 Prince /
-  sky, rank 3 Knight / violet; labels from `ranks.*`). The same badge appears
-  compact (icon-only, labelled) next to each player's total in `TurnHistory`,
-  so current standing is visible mid-game too.
+  sky, rank 3 Knight / violet; labels from `ranks.*`). In `TurnHistory` the
+  labeled badge sits beside the player name and a compact icon-only badge
+  (title + aria-label) marks the total cell, so current standing is visible
+  mid-game too.
 - `TurnHistory` with edit affordances; "New Game" confirmed via `ConfirmDialog`.
 
 ## Sticky TurnActionBar (`src/components/TurnActionBar.tsx`)
@@ -74,7 +81,8 @@ so the fixed action bar never covers it.
 
 - Returns `null` when there are no submitted turns.
 - Horizontally scrollable table (`overflow-x-auto`, `min-w-[28rem]`): player
-  column (avatar + name), one column per turn, total column.
+  column (avatar + name + King/Prince/Knight label for top-3 ranks), one
+  column per turn, total column.
 - When `onEditTurn` is provided, turn headers are buttons
   (`game.editTurn` aria-label) and the column being edited is tinted
   (`bg-indigo-50 dark:bg-indigo-500/10`).

@@ -61,11 +61,12 @@
     "saveTurn": "Save Turn",
     "editingTurn": "Editing Turn {{number}}",
     "editTurn": "Edit turn {{number}}",
+    "checkKing": "Check King",
     "previousTurn": "Previous turn",
     "nextTurn": "Next turn",
     "removePlayer": "Remove {{name}}",
     "restart": "Restart Game",
-    "kingHint": "The King scores 0 points this turn. Multiple Kings are allowed.",
+    "kingHint": "The King scores 0 points this turn. Tap Check King to crown the lowest scorer(s).",
     "history": "Submitted Turns",
     "errors": {
       "pointsRequired": "Enter the points for {{name}}.",

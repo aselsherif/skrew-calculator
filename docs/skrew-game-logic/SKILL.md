@@ -50,12 +50,20 @@ Regular mode: `turnCount: 5`, `allowMultipleKings: true`, `ranking: 'ascending'`
 
 ## King behavior
 
-- Toggling is per-player; multiple kings per turn are allowed
-  (`mode.allowMultipleKings`). If a future mode sets it `false`, GameScreen
-  keeps the exclusive-king path (turning one on clears others).
+- The King toggle button exists on every player row; toggling is per-player and
+  multiple kings per turn are allowed (`mode.allowMultipleKings`). If a future
+  mode sets it `false`, GameScreen keeps the exclusive-king path (turning one
+  on clears others).
+- **Check King button**: the "Check King" button in the turn card recomputes
+  the current turn's kings via `crownLowestScorers` (`src/game/draft.ts`):
+  the player(s) with the lowest entered points are crowned (ties share the
+  crown when `allowMultipleKings`; other kings are replaced). It works on
+  entered scores only — missing scores block it with the usual validation
+  errors in the UI. Nothing is automatic: every score edit leaves the kings
+  untouched until Check King is pressed or the buttons are toggled.
 - King rows skip score validation entirely; when submitted, king entries are
-  stored with `points: 0, isKing: true`. Toggling a king off restores normal
-  entry (previously submitted kings lose their typed points — that is expected).
+  stored with `points: 0, isKing: true` (the typed raw points are kept only
+  for the crown calculation). Toggling a king off restores normal entry.
 
 ## Turn lifecycle (`src/hooks/useGameSession.ts`)
 
