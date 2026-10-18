@@ -9,6 +9,7 @@ import { Card } from '../components/ui/Card'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { CrownIcon } from '../components/ui/CrownIcon'
 import type { GameModeDefinition } from '../game/modes'
+import { MIN_PLAYERS } from '../game/players'
 import { MAX_TURN_POINTS, parsePoints, totalForPlayer } from '../game/rules'
 import type { GameSession, Player, Turn, TurnEntry } from '../types/game'
 
@@ -18,6 +19,7 @@ interface GameScreenProps {
   onSubmitTurn: (entries: TurnEntry[]) => void
   onStartEditingTurn: (index: number) => void
   onCancelEditingTurn: () => void
+  onRemovePlayer: (playerId: string) => void
   onRestart: () => void
 }
 
@@ -46,10 +48,12 @@ export function GameScreen({
   onSubmitTurn,
   onStartEditingTurn,
   onCancelEditingTurn,
+  onRemovePlayer,
   onRestart,
 }: GameScreenProps) {
   const { t } = useTranslation()
   const [confirmRestartOpen, setConfirmRestartOpen] = useState(false)
+  const [playerToRemove, setPlayerToRemove] = useState<Player | null>(null)
   const [drafts, setDrafts] = useState<Record<string, DraftState>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showSummary, setShowSummary] = useState(false)
@@ -179,8 +183,10 @@ export function GameScreen({
           draft={draft}
           errors={errors}
           showSummary={showSummary}
+          canRemovePlayers={session.players.length > MIN_PLAYERS}
           onPointsChange={handlePointsChange}
           onToggleKing={handleToggleKing}
+          onRequestRemovePlayer={setPlayerToRemove}
         />
       </Card>
 
@@ -218,6 +224,21 @@ export function GameScreen({
         }}
         onCancel={() => setConfirmRestartOpen(false)}
       />
+
+      <ConfirmDialog
+        open={playerToRemove !== null}
+        title={t('removePlayer.title', { name: playerToRemove?.name ?? '' })}
+        message={t('removePlayer.message')}
+        confirmLabel={t('removePlayer.confirm')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={() => {
+          if (playerToRemove) {
+            onRemovePlayer(playerToRemove.id)
+          }
+          setPlayerToRemove(null)
+        }}
+        onCancel={() => setPlayerToRemove(null)}
+      />
     </div>
   )
 }
@@ -228,8 +249,10 @@ interface ScoreEntryFormProps {
   draft: DraftState
   errors: Record<string, string>
   showSummary: boolean
+  canRemovePlayers: boolean
   onPointsChange: (playerId: string, value: string) => void
   onToggleKing: (playerId: string) => void
+  onRequestRemovePlayer: (player: Player) => void
 }
 
 function ScoreEntryForm({
@@ -238,8 +261,10 @@ function ScoreEntryForm({
   draft,
   errors,
   showSummary,
+  canRemovePlayers,
   onPointsChange,
   onToggleKing,
+  onRequestRemovePlayer,
 }: ScoreEntryFormProps) {
   const { t } = useTranslation()
 
@@ -293,20 +318,34 @@ function ScoreEntryForm({
                     </Badge>
                   )}
                 </div>
-                <button
-                  type="button"
-                  aria-pressed={entry.isKing}
-                  aria-label={`${t('common.king')}: ${player.name}`}
-                  onClick={() => onToggleKing(player.id)}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                    entry.isKing
-                      ? 'border-amber-400 bg-amber-400 text-amber-950'
-                      : 'border-slate-300 bg-white text-slate-600 hover:border-amber-300 hover:text-amber-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400/60 dark:hover:text-amber-300'
-                  }`}
-                >
-                  <CrownIcon className="h-3.5 w-3.5" />
-                  {t('common.king')}
-                </button>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    aria-pressed={entry.isKing}
+                    aria-label={`${t('common.king')}: ${player.name}`}
+                    onClick={() => onToggleKing(player.id)}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                      entry.isKing
+                        ? 'border-amber-400 bg-amber-400 text-amber-950'
+                        : 'border-slate-300 bg-white text-slate-600 hover:border-amber-300 hover:text-amber-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400/60 dark:hover:text-amber-300'
+                    }`}
+                  >
+                    <CrownIcon className="h-3.5 w-3.5" />
+                    {t('common.king')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onRequestRemovePlayer(player)}
+                    disabled={!canRemovePlayers}
+                    aria-label={t('game.removePlayer', { name: player.name })}
+                    title={t('game.removePlayer', { name: player.name })}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-100 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-400 dark:hover:bg-rose-500/20 dark:hover:text-rose-300 dark:disabled:hover:text-slate-400"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <path d="M6 6l12 12M18 6 6 18" />
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-3">

@@ -63,6 +63,7 @@
     "editTurn": "Edit turn {{number}}",
     "previousTurn": "Previous turn",
     "nextTurn": "Next turn",
+    "removePlayer": "Remove {{name}}",
     "restart": "Restart Game",
     "kingHint": "The King scores 0 points this turn. Multiple Kings are allowed.",
     "history": "Submitted Turns",
@@ -77,12 +78,21 @@
     "message": "All players, scores, and submitted turns will be cleared. This action cannot be undone.",
     "confirm": "Restart"
   },
+  "removePlayer": {
+    "title": "Remove {{name}}?",
+    "message": "Their scores from all submitted turns will be deleted. This action cannot be undone.",
+    "confirm": "Remove"
+  },
+  "ranks": {
+    "king": "King",
+    "prince": "Prince",
+    "knight": "Knight"
+  },
   "results": {
     "title": "Final Results",
     "editHint": "Select a turn in the history below to update its scores.",
     "winnerBanner": "{{name}} wins with {{score}} points!",
     "tieBanner": "It's a tie! Winners: {{names}}",
-    "winnerBadge": "Winner",
     "newGame": "New Game"
   }
 }

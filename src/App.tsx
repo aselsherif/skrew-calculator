@@ -16,6 +16,7 @@ function App() {
     submitTurn,
     startEditingTurn,
     cancelEditingTurn,
+    removePlayer,
     resetGame,
   } = useGameSession()
 
@@ -53,6 +54,7 @@ function App() {
               onSubmitTurn={submitTurn}
               onStartEditingTurn={startEditingTurn}
               onCancelEditingTurn={cancelEditingTurn}
+              onRemovePlayer={removePlayer}
               onRestart={resetGame}
             />
           ) : null}

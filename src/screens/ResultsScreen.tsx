@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PlayerAvatar } from '../components/PlayerAvatar'
+import { RankBadge } from '../components/RankBadge'
 import { TurnHistory } from '../components/TurnHistory'
-import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
@@ -75,12 +75,7 @@ export function ResultsScreen({ session, onNewGame, onStartEditingTurn }: Result
                   <span className="truncate font-semibold text-slate-900 dark:text-slate-100">
                     {standing.player.name}
                   </span>
-                  {isWinner && (
-                    <Badge tone="amber">
-                      <CrownIcon className="h-3.5 w-3.5" />
-                      {t('results.winnerBadge')}
-                    </Badge>
-                  )}
+                  <RankBadge rank={standing.rank} />
                 </div>
                 <div className="flex shrink-0 items-baseline gap-1">
                   <span className="text-lg font-bold tabular-nums text-slate-900 dark:text-slate-100">

@@ -45,6 +45,8 @@ Regular mode: `turnCount: 5`, `allowMultipleKings: true`, `ranking: 'ascending'`
   rank 1 = winner.
 - `winnersOf(standings)` — all rank-1 players (ties produce multiple winners;
   ResultsScreen shows a tie banner).
+- Ranks map to titles in the UI (`ranks.king` / `ranks.prince` / `ranks.knight`
+  via `RankBadge`): rank 1 King, 2 Prince, 3 Knight.
 
 ## King behavior
 
@@ -66,6 +68,10 @@ Regular mode: `turnCount: 5`, `allowMultipleKings: true`, `ranking: 'ascending'`
     `editingTurnIndex`.
 - `startEditingTurn(index)` / `cancelEditingTurn()` manage the editing flag
   (persisted, so refresh keeps you in the editor).
+- `removePlayer(playerId)` — mid-game removal. Refuses when
+  `players.length <= MIN_PLAYERS` (4, from `src/game/players.ts`); otherwise
+  drops the player and filters their entries out of every submitted turn.
+  Session shape stays compatible with storage (no schema change).
 - `resetGame()` sets session to `null` → back to setup. Always confirm via
   `ConfirmDialog` before calling (see GameScreen/ResultsScreen).
 

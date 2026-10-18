@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getGameMode } from '../game/modes'
+import { MIN_PLAYERS } from '../game/players'
 import { gameStorage, type GameStorage } from '../storage/gameStorage'
 import type { GameModeId, GameSession, NewPlayerInput, Turn, TurnEntry } from '../types/game'
 
@@ -89,9 +90,34 @@ export function useGameSession(storage: GameStorage = gameStorage) {
     )
   }, [])
 
+  const removePlayer = useCallback((playerId: string) => {
+    setSession((previous) => {
+      if (!previous || previous.players.length <= MIN_PLAYERS) {
+        return previous
+      }
+      const players = previous.players.filter((player) => player.id !== playerId)
+      if (players.length === previous.players.length) {
+        return previous
+      }
+      const turns = previous.turns.map((turn) => ({
+        ...turn,
+        entries: turn.entries.filter((entry) => entry.playerId !== playerId),
+      }))
+      return { ...previous, players, turns }
+    })
+  }, [])
+
   const resetGame = useCallback(() => {
     setSession(null)
   }, [])
 
-  return { session, startGame, submitTurn, startEditingTurn, cancelEditingTurn, resetGame }
+  return {
+    session,
+    startGame,
+    submitTurn,
+    startEditingTurn,
+    cancelEditingTurn,
+    removePlayer,
+    resetGame,
+  }
 }

@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
-import { effectivePoints, totalForPlayer } from '../game/rules'
+import { computeStandings, effectivePoints, totalForPlayer } from '../game/rules'
 import type { GameSession } from '../types/game'
 import { PlayerAvatar } from './PlayerAvatar'
+import { RankBadge } from './RankBadge'
 import { Card } from './ui/Card'
 import { CrownIcon } from './ui/CrownIcon'
 
@@ -16,6 +17,9 @@ export function TurnHistory({ session, onEditTurn }: TurnHistoryProps) {
   if (session.turns.length === 0) {
     return null
   }
+
+  const standings = computeStandings(session.players, session.turns)
+  const rankByPlayer = new Map(standings.map((standing) => [standing.player.id, standing.rank]))
 
   return (
     <Card title={t('game.history')}>
@@ -92,7 +96,10 @@ export function TurnHistory({ session, onEditTurn }: TurnHistoryProps) {
                   )
                 })}
                 <td className="py-2 ps-3 text-center font-bold text-slate-900 dark:text-slate-100">
-                  {totalForPlayer(session.turns, player.id)}
+                  <span className="inline-flex items-center justify-center gap-1.5">
+                    {totalForPlayer(session.turns, player.id)}
+                    <RankBadge rank={rankByPlayer.get(player.id) ?? 0} compact />
+                  </span>
                 </td>
               </tr>
             ))}

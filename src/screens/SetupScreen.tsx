@@ -7,11 +7,8 @@ import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { createAvatarSeed } from '../game/bigHeads'
 import { DEFAULT_MODE_ID, GAME_MODES } from '../game/modes'
+import { MAX_NAME_LENGTH, MAX_PLAYERS, MIN_PLAYERS } from '../game/players'
 import type { GameModeId, NewPlayerInput } from '../types/game'
-
-export const MIN_PLAYERS = 2
-export const MAX_PLAYERS = 10
-export const MAX_NAME_LENGTH = 20
 
 type NameError = 'nameRequired' | 'nameTooLong' | 'nameDuplicate'
 

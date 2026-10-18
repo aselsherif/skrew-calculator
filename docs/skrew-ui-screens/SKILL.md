@@ -27,7 +27,9 @@ so the fixed action bar never covers it.
 - Mode cards rendered from `GAME_MODES` (radio-style buttons with `aria-pressed`).
 - Player input with validation: required, max 20 chars, case-insensitive
   duplicates; Enter key adds. Errors shown under the input via `setup.errors.*`.
-- Constants: `MIN_PLAYERS = 2`, `MAX_PLAYERS = 10`.
+- Constants live in `src/game/players.ts`: `MIN_PLAYERS = 4`,
+  `MAX_PLAYERS = 10`, `MAX_NAME_LENGTH = 20` (shared with the GameScreen
+  removal guard).
 - Added players render as small cards in a `grid grid-cols-2 sm:grid-cols-3`:
   avatar on top, truncated name below. Tapping the card opens the avatar
   picker; a floating ✕ button (absolute, `end-1.5`) removes the player.
@@ -40,14 +42,20 @@ so the fixed action bar never covers it.
   `TurnActionBar`, restart `ConfirmDialog`.
 - `ScoreEntryForm` is presentational: player rows with avatar + name, amber
   King badge, king toggle pill, numeric points input, live projected total
-  (excludes the edited turn while editing), inline error text.
+  (excludes the edited turn while editing), inline error text, and a per-row
+  remove (✕) button. Removing a player mid-game opens a `ConfirmDialog`
+  (`removePlayer.*` keys) and is disabled while `players.length <= MIN_PLAYERS`.
 - `pb-28` on the root so the fixed bar clears the last card.
 
 ### ResultsScreen (`src/screens/ResultsScreen.tsx`)
 - Winner banner (crown badge, winner name + score, tie variant listing all
   rank-1 names joined with `common.listSeparator`).
-- Ranked list: rank circle, avatar, name, winner badge, total. Winner rows are
+- Ranked list: rank circle, avatar, name, rank badge, total. Winner rows are
   amber-highlighted.
+- Top-3 rows show `RankBadge` medals (rank 1 King / amber, rank 2 Prince /
+  sky, rank 3 Knight / violet; labels from `ranks.*`). The same badge appears
+  compact (icon-only, labelled) next to each player's total in `TurnHistory`,
+  so current standing is visible mid-game too.
 - `TurnHistory` with edit affordances; "New Game" confirmed via `ConfirmDialog`.
 
 ## Sticky TurnActionBar (`src/components/TurnActionBar.tsx`)
@@ -81,6 +89,8 @@ so the fixed action bar never covers it.
   `role="dialog"` + `aria-labelledby` via `useId`.
 - `ConfirmDialog` — Modal + message + cancel (autoFocus) / danger confirm.
 - `CrownIcon` — used for kings and winners.
+- `RankBadge` — medal chip/icon for ranks 1-3 (King/Prince/Knight) with its
+  own sword and shield SVG icons; renders nothing for rank 4+.
 
 ## Conventions
 
